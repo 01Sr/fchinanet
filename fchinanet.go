@@ -2,7 +2,7 @@
 * @Author: 01sr
 * @Date:   2018-04-07 18:56:35
 * @Last Modified by:   01sr
-* @Last Modified time: 2018-04-08 13:34:11
+* @Last Modified time: 2018-04-08 20:33:54
  */
 package main
 
@@ -146,7 +146,9 @@ func main() {
 	name := flag.String("n", hostname, "The `device name`.")
 	flag.Parse() //解析输入的参数
 	if *account == "" || *passwd == "" {
-		mlog.e("The -a [account] and the -p [password] must be set!\nUsing -h to see more.")
+		mlog.e("The -a [account] and the -p [password] must be set!\nUsing -h to see more.\nPress any key to exit.")
+		var e byte
+		fmt.Scanf("%b", &e)
 		os.Exit(0)
 	}
 	mlog.i("accout: ", *account, ", password: ", *passwd, ", device name: ", *name)
