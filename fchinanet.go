@@ -1,36 +1,30 @@
+/*
+* @Author: 01sr
+* @Date:   2018-04-07 18:56:35
+* @Last Modified by:   01sr
+* @Last Modified time: 2018-04-08 13:34:11
+ */
 package main
 
 import (
 	"crypto/tls"
-	"encoding/base64"
 	"encoding/json"
-	"encoding/xml"
+	"errors"
+	"flag"
 	"fmt"
+	"github.com/fatih/color"
 	"io/ioutil"
-	"log"
-	// "math/rand"
+	"net"
 	"net/http"
-	// "net"
 	"os"
 	"strconv"
 	"strings"
-	// "time"
+	"time"
 )
-
-type user struct {
-	Account  string `xml:"account"`
-	Passwd   string `xml:"passwd"`
-	Type     string `xml:"type"`
-	Id       string `xml:"id"`
-	ServerId string `xml:"serverId"`
-	Status   int    `xml:"status"`
-	LastIp   string `xml:"lastIp"`
-	BrasIp   string `xml:"BrasIp"`
-}
 
 type OnlinesS struct {
 	Device string `json:"device"`
-	Type   int    `json:"type"`
+	Type   int    `json:"type"` //设备下线可通过此值判断
 	Time   string `json:"time"`
 	Code   int    `json:"code"`
 	BrasIp string `json:"brasIp"`
@@ -95,171 +89,214 @@ type OnlineResult struct {
 	Status   string `json:"status"`
 	Response string `json:"response"`
 }
-type XMLKey struct {
-	Account, Passwd, Type, Id, ServerId, Status, LastIp, BrasIp string
-}
 
-const divider = "##############################################"
-
-var XMLKeyWord = XMLKey{"account", "passwd", "type", "id", "serverId", "status", "lastIp", "brasIp"}
+type Mlog struct{}
 
 var (
-	deviceStatus = [...]bool{false, false, false, false}
-	id           string
-	serverId     string
-	account      = ""
-	passwd       = ""
-	ttype        = "1"
-	client       *http.Client
-	re           string
-	brasIp       string
-	wanIp        string
+	mlog = new(Mlog)
 )
 
-func saveUser() {
-	u := &user{base64.StdEncoding.EncodeToString([]byte(account)), base64.StdEncoding.EncodeToString([]byte(passwd)), ttype, id, serverId, 0, "0", "0"}
-	body, errMarshal := xml.MarshalIndent(u, "", "	")
-	checkErr(errMarshal, "error marshal xml")
-
-	errWrite := ioutil.WriteFile("user.xml", append([]byte(xml.Header), body...), 0777)
-	checkErr(errWrite, "error writing")
+func (*Mlog) toString(msg ...interface{}) string {
+	s := fmt.Sprint(msg)
+	return s[2 : len(s)-2]
+}
+func (this *Mlog) i(msg ...interface{}) {
+	s := this.toString(msg)
+	s = "[Info] " + s
+	color.Green(s)
 }
 
-func updateUser(name string, content string) {
-	body, errRead := ioutil.ReadFile("user.xml")
-	checkErr(errRead, "error reading user.xml")
-	var u user
-	xml.Unmarshal(body, &u)
-	switch name {
-	case XMLKeyWord.Account:
-		u.Account = content
-	case XMLKeyWord.Passwd:
-		u.Passwd = content
-	case XMLKeyWord.Id:
-		u.Id = content
-	case XMLKeyWord.ServerId:
-		u.ServerId = content
-	case XMLKeyWord.Status:
-		code, err := strconv.Atoi(content)
-		if err == nil {
-			u.Status = code
-		}
-	case XMLKeyWord.LastIp:
-		u.LastIp = content
-	case XMLKeyWord.BrasIp:
-		u.BrasIp = content
+func (this *Mlog) w(msg ...interface{}) {
+	s := this.toString(msg)
+	s = "[Warning] " + s
+	color.Yellow(s)
+}
+
+func (this *Mlog) e(msg ...interface{}) {
+	s := this.toString(msg)
+	s = "[Error] " + s
+	color.Red(s)
+}
+
+func listOnline(devices []OnlinesS) {
+	if len(devices) == 0 {
+		mlog.i("No device online.")
+		os.Exit(0)
 	}
-	body, errMarshal := xml.MarshalIndent(u, "", "	")
-	checkErr(errMarshal, "error marshaling")
-	errWrite := ioutil.WriteFile("user.xml", body, 0777)
-	checkErr(errWrite, "error writing")
-}
-func getUser() *user {
-	body, errRead := ioutil.ReadFile("user.xml")
-	checkErr(errRead, "error reading")
-	var u user
-	xml.Unmarshal(body, &u)
-	return &u
+	s := "Devices of online:"
+	for _, device := range devices {
+		s += "\n" + fmt.Sprintf("%+v", device)
+	}
+	mlog.i(s)
 }
 
-func newClient() *http.Client {
-	if client == nil {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true,
-			},
-			// Dial: func(netw, addr string) (net.Conn, error) {
-			//     c, err := net.DialTimeout(netw, addr, time.Second*3)
-			//     if err != nil {
-			//         fmt.Println("访问超时,请检查网络", err)
-			//         return nil, err
-			//     }
-			//     return c, nil
-			// },
-			// MaxIdleConnsPerHost:   10,
-			// ResponseHeaderTimeout: time.Second * 2,
-		}
-		client = &http.Client{Transport: tr}
+func main() {
+	account := flag.String("a", "", "The `account(phone number)` of ChinaTelecom(required!).")
+	passwd := flag.String("p", "", "The `password` of '掌上大学'(required!).")
+	ttype := flag.String("t", "1", "If your account support multiply devices, you can set it `0 or 1` to distinguish different devices.")
+	behavior := flag.Int("b", 1, "Set `1 or 0` to login or log out.")
+	list := flag.Bool("l", false, "List devices of online, can't use with -b together.")
+	force := flag.Bool("f", false, "If your account is using by another device, make it offline forcedly.")
+	hostname, err := os.Hostname()
+
+	if err != nil {
+		mlog.e(err.Error() + " set default name:\"default\"")
+		hostname = "default"
 	}
+	name := flag.String("n", hostname, "The `device name`.")
+	flag.Parse() //解析输入的参数
+	if *account == "" || *passwd == "" {
+		mlog.e("The -a [account] and the -p [password] must be set!\nUsing -h to see more.")
+		os.Exit(0)
+	}
+	mlog.i("accout: ", *account, ", password: ", *passwd, ", device name: ", *name)
+	wanIp, brasIp, err := initial()
+	if err != nil {
+		mlog.e(err.Error())
+		os.Exit(0)
+	}
+
+	user, err := login(*account, *passwd)
+	if err != nil {
+		mlog.e(err.Error())
+		os.Exit(0)
+	}
+	if *list {
+		devices, err := getOnlineDeviceList(user.Id, *account, *passwd)
+		if err != nil {
+			mlog.e(err.Error())
+			os.Exit(0)
+		}
+		listOnline(devices)
+		os.Exit(0)
+	}
+
+	if *behavior == 0 {
+		// offline
+		if wanIp != "0" {
+			mlog.w("Already offline.")
+			os.Exit(0)
+		}
+		devices, err := getOnlineDeviceList(user.Id, *account, *passwd)
+
+		if err != nil {
+			mlog.e(err.Error())
+			os.Exit(0)
+		}
+		dd := fmt.Sprintf("%+v", devices)
+		mlog.i(dd)
+		if len(devices) == 0 {
+			mlog.e("The current account does not match the login account.")
+			os.Exit(0)
+		}
+		for _, device := range devices {
+			if strconv.Itoa(device.Type) == *ttype {
+				err = kickOffDevice(user.Id, *account, *passwd, device.WanIp, device.BrasIp)
+				if err != nil {
+					mlog.e(err.Error())
+					os.Exit(0)
+				}
+				mlog.i("Log out successfully.")
+			}
+		}
+	} else {
+		// online
+		if wanIp == "0" {
+			mlog.w("Already online.")
+			os.Exit(0)
+		}
+		code, err := getPasswd(user.Id, *account, *passwd)
+		if err != nil {
+			mlog.e(err.Error())
+			os.Exit(0)
+		}
+		mlog.i(code)
+		// 密码获取成功
+		qrcode, err := getQrCode(wanIp, brasIp, *name)
+		if err != nil {
+			mlog.e(err.Error())
+			os.Exit(0)
+		}
+		mlog.i(qrcode)
+		//qrcode获取成功
+		err = online(user.Id, *account, *passwd, code, qrcode, *ttype)
+		if err != nil && strings.Contains(err.Error(), "检测到你的帐号在其他设备登录") && *force {
+			var devices []OnlinesS
+			devices, err = getOnlineDeviceList(user.Id, *account, *passwd)
+			if err != nil {
+				mlog.e(err.Error())
+				os.Exit(0)
+			}
+			for _, device := range devices {
+				if strconv.Itoa(device.Type) == *ttype {
+					mlog.i("The account(type:" + *ttype + ") is using by \"" + device.Device + "\".")
+					err = kickOffDevice(user.Id, *account, *passwd, device.WanIp, device.BrasIp)
+					if err != nil {
+						mlog.e(err.Error())
+						os.Exit(0)
+					}
+					mlog.i("Force \"" + device.Device + "\" offline successfully.")
+					break
+				}
+			}
+			time.Sleep(time.Second)
+			err = online(user.Id, *account, *passwd, code, qrcode, *ttype)
+			if err != nil {
+				mlog.e("test " + err.Error())
+			}
+		}
+
+		if err != nil {
+			mlog.e(err.Error())
+		} else {
+			mlog.i("Login successfully.")
+		}
+	}
+}
+
+func newClient(timeoutSecond time.Duration) *http.Client {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+		Dial: func(netw, addr string) (net.Conn, error) {
+			c, err := net.DialTimeout(netw, addr, time.Second*timeoutSecond)
+			return c, err
+		},
+		// MaxIdleConnsPerHost:   10,
+		// ResponseHeaderTimeout: time.Second * 2,
+	}
+	client := &http.Client{Transport: tr}
 	return client
 }
 
-func checkErr(err error, info string) {
+// wanIp=="0"表示已登录校园网
+func initial() (wanIp, brasIp string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("[W]", r)
+			mlog.e(r)
 		}
 	}()
-	if err != nil {
-		log.Println("panic:" + err.Error() + " info:" + info)
-	}
-}
-
-func login() {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err)
-			re = "未知异常"
-		}
-		fmt.Println(re)
-	}()
-	if !checkNet() {
-		fmt.Println("未连接校园网")
-		return
-	}
-
-	if re = loginChinaNet(); re == "0" {
-		updateUser(XMLKeyWord.Status, strconv.Itoa(1))
-		updateUser(XMLKeyWord.LastIp, wanIp)
-		re = "登陆成功"
-	}
-}
-
-func checkEncry() bool {
-	user := getUser()
-	account = user.Account
-	passwd = user.Passwd
-	if user.Type != "" {
-		ttype = user.Type
-	}
-	if account == "" || passwd == "" {
-		return false
-	}
-	if strings.HasSuffix(account, "=") {
-		a, errDecodeA := base64.StdEncoding.DecodeString(account)
-		checkErr(errDecodeA, "Error Decoding account")
-		p, errDecodeP := base64.StdEncoding.DecodeString(passwd)
-		checkErr(errDecodeP, "Error Decoding password")
-		account = string(a)
-		passwd = string(p)
-	} else {
-		updateUser(XMLKeyWord.Account, base64.StdEncoding.EncodeToString([]byte(account)))
-		updateUser(XMLKeyWord.Passwd, base64.StdEncoding.EncodeToString([]byte(passwd)))
-	}
-	return true
-}
-
-func checkNet() bool {
-	fmt.Println("正在检测网络...")
 	req, err := http.NewRequest("GET", "http://pre.f-young.cn/", nil)
-	checkErr(err, "error Requesting")
-	rep, errGet := newClient().Do(req)
-	if errGet != nil {
-		return false
+	if err != nil {
+		return "", "", err
 	}
-	if rep.StatusCode == 200 {
-		return true
+	rep, err := newClient(10).Do(req)
+	if err != nil {
+		return "", "", err
 	}
-	return false
+	if rep.StatusCode != 200 {
+		return "", "", errors.New("Not the Telecom campus network.")
+	}
 
-}
-
-func initial() {
-	fmt.Println("正在初始化...")
-	req, err := http.NewRequest("GET", "HTTP://test.f-young.cn/", nil)
-	checkErr(err, "error Requesting")
-	rep, err1 := http.DefaultTransport.RoundTrip(req)
-	checkErr(err1, "error Getting")
+	req, err = http.NewRequest("GET", "HTTP://test.f-young.cn/", nil)
+	if err != nil {
+		return "", "", err
+	}
+	rep, err = http.DefaultTransport.RoundTrip(req)
+	if err != nil {
+		return "", "", err
+	}
 	if rep.StatusCode == 302 {
 		content := rep.Header.Get("Location")
 		argString := strings.Split(content, "?")
@@ -272,261 +309,210 @@ func initial() {
 				brasIp = strings.Split(param, "=")[1]
 			}
 		}
+		return wanIp, brasIp, nil
 	}
+	if rep.StatusCode == 200 {
+		return "0", "", nil
+	}
+	return "", "", errors.New("Failed to detect net state!")
 }
 
-func loginChinaNet() string {
-	fmt.Println("正在检测用户信息...")
-	u := getUser()
-	request, errNewRequest := http.NewRequest("GET", "https://www.loocha.com.cn:8443/login", nil)
-	checkErr(errNewRequest, "error new request")
-
+func login(account, passwd string) (*UserS, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			mlog.e(r)
+		}
+	}()
+	request, err := http.NewRequest("GET", "https://www.loocha.com.cn:8443/login", nil)
+	if err != nil {
+		return nil, err
+	}
 	request.SetBasicAuth(account, passwd)
-	response, errRequest := newClient().Do(request)
-	checkErr(errRequest, "error requseting")
+	response, err := newClient(0).Do(request)
+	if err != nil {
+		return nil, err
+	}
 	if response.StatusCode == http.StatusOK {
-		body, errRead := ioutil.ReadAll(response.Body)
-		checkErr(errRead, "error reading")
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, err
+		}
 		defer response.Body.Close()
 		loginResult := &LoginResult{}
-		errUnmarshal := json.Unmarshal(body, loginResult)
-		checkErr(errUnmarshal, "error unmarshal")
-		id = loginResult.User.Id
-		serverId = loginResult.User.Did
-		if serverId != "" {
-			serverId = strings.Split(serverId, "#")[0]
+		err = json.Unmarshal(body, loginResult)
+		if err != nil {
+			return nil, err
 		}
-
-		if id == "" || serverId == "" {
-			u = getUser()
-			id = u.Id
-			serverId = u.ServerId
-
-		} else {
-			saveUser()
+		if loginResult.Status != "0" {
+			return nil, errors.New("Failed to resolve user info! error[0].")
 		}
-		result, full := checkLogin()
-		if result {
-			return "登陆成功"
-		} else {
-			if full {
-				return "设备已满"
-			} else {
-				return online()
-			}
-
-		}
+		return &loginResult.User, nil
 	}
-	if response.StatusCode == http.StatusUnauthorized {
-		return "账号或密码错误"
-	}
-
-	return "登陆异常，请重新尝试"
+	return nil, errors.New("Failed to resolve user info! error[1].")
 }
 
-func checkLogin() (result bool, full bool) {
-	u := getUser()
-	result = false
-	full = false
-	request, errNewRequest := http.NewRequest("GET", "https://wifi.loocha.cn/"+u.Id+"/wifi/status", nil)
-	checkErr(errNewRequest, "error new request")
-	a, _ := base64.StdEncoding.DecodeString(u.Account)
-	p, _ := base64.StdEncoding.DecodeString(u.Passwd)
-	request.SetBasicAuth(string(a), string(p))
-	response, errRequest := newClient().Do(request)
-	checkErr(errRequest, "error requseting")
+func getPasswd(id, account, passwd string) (string, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			mlog.e(r)
+		}
+	}()
+	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/telecom/pwd?type=4", nil)
+	if err != nil {
+		return "", err
+	}
+	request.SetBasicAuth(account, passwd)
+	response, err := newClient(0).Do(request)
+	if err != nil {
+		return "", err
+	}
+	if response.StatusCode == http.StatusOK {
+		defer response.Body.Close()
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return "", err
+		}
+		passwdJson := &PasswdJson{}
+		err = json.Unmarshal(body, passwdJson)
+		if err != nil {
+			return "", err
+		}
+		code := passwdJson.TelecomWifiRes.Password
+		if passwdJson.Status != "0" {
+			return "", errors.New(code)
+		}
+		return code, nil
+	}
+	return "", errors.New("Failed to get password!")
+}
+
+func getQrCode(ip, brasIp, name string) (string, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			mlog.e(r)
+		}
+	}()
+	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/0/wifi/qrcode"+"?brasip="+brasIp+"&ulanip="+ip+"&wlanip="+ip+"&mm="+name, nil)
+	if err != nil {
+		return "", err
+	}
+	response, err := newClient(0).Do(request)
+	if err != nil {
+		return "", err
+	}
+	if response.StatusCode == http.StatusOK {
+		defer response.Body.Close()
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return "", err
+		}
+		qrcodeJson := &QrcodeJson{}
+		err = json.Unmarshal(body, qrcodeJson)
+		if err != nil {
+			return "", err
+		}
+		if qrcodeJson.Status != "0" {
+			return "", errors.New("Failed to get qrcode! error[2]")
+		}
+		qrcode := qrcodeJson.TelecomWifiRes.Password
+		return qrcode, nil
+	}
+
+	return "", errors.New("Failed to get qrcode! error[3]")
+}
+
+func online(id, account, passwd, code, qrcode, ttype string) error {
+	defer func() {
+		if r := recover(); r != nil {
+			mlog.e(r)
+		}
+	}()
+	param := "qrcode=" + qrcode + "&code=" + code + "&type="
+	param += ttype
+	request, err := http.NewRequest("POST", "https://wifi.loocha.cn/"+id+"/wifi/telecom/auto/login?"+param, nil)
+	if err != nil {
+		return err
+	}
+	request.SetBasicAuth(account, passwd)
+	response, err := newClient(0).Do(request)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode == http.StatusOK {
+		defer response.Body.Close()
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return err
+		}
+		onlineResult := &OnlineResult{}
+		err = json.Unmarshal(body, onlineResult)
+		if err != nil {
+			return err
+		}
+		status := onlineResult.Status
+		if status != "0" {
+			return errors.New(onlineResult.Response)
+		}
+		return nil
+	}
+	return errors.New("Failed to log out!")
+}
+
+func getOnlineDeviceList(id, account, passwd string) ([]OnlinesS, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			mlog.e(r)
+		}
+	}()
+	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/status", nil)
+	if err != nil {
+		return nil, err
+	}
+	request.SetBasicAuth(account, passwd)
+	if err != nil {
+		return nil, err
+	}
+	response, err := newClient(0).Do(request)
+	if err != nil {
+		return nil, err
+	}
 	defer response.Body.Close()
 	if response.StatusCode == http.StatusOK {
 		onlineDevice := &OnlineDevice{}
-		body, errRead := ioutil.ReadAll(response.Body)
-		checkErr(errRead, "error reading")
-		errUnmarshal := json.Unmarshal(body, onlineDevice)
-		checkErr(errUnmarshal, "Error Unmarshal")
-		for _, d := range onlineDevice.WifiOnlines.Onlines {
-			if d.WanIp == u.LastIp {
-				result = true
-			}
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, err
 		}
-		if len(onlineDevice.WifiOnlines.Onlines) == 3 {
-			full = true
+		err = json.Unmarshal(body, onlineDevice)
+		if err != nil {
+			return nil, err
 		}
-
+		if onlineDevice.Status != "0" {
+			return nil, errors.New("Error: " + onlineDevice.Status)
+		}
+		return onlineDevice.WifiOnlines.Onlines, nil
 	}
-
-	return
-}
-func kickOffDevice(ip, brasIp string) {
-	fmt.Println("正在下线...")
-	checkEncry()
-	u := getUser()
-	request, errNewRequest := http.NewRequest("DELETE", "https://wifi.loocha.cn/"+u.Id+"/wifi/kickoff?wanip="+ip+"&brasip="+brasIp, nil)
-	checkErr(errNewRequest, "error new request")
-	a, _ := base64.StdEncoding.DecodeString(u.Account)
-	p, _ := base64.StdEncoding.DecodeString(u.Passwd)
-	request.SetBasicAuth(string(a), string(p))
-	response, errRequest := newClient().Do(request)
-	checkErr(errRequest, "error requseting")
-	if responseCode := response.StatusCode; responseCode == 200 {
-		defer response.Body.Close()
-		fmt.Println("下线成功")
-		return
-	}
-	fmt.Println("下线失败")
+	return nil, errors.New("Failed to get devices of online!")
 }
 
-func getPasswd() string {
-	request, errNewRequest := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/telecom/pwd?type=4", nil)
-	checkErr(errNewRequest, "error new request")
+func kickOffDevice(id, account, passwd, ip, brasIp string) error {
+	defer func() {
+		if r := recover(); r != nil {
+			mlog.e(r)
+		}
+	}()
+	request, err := http.NewRequest("DELETE", "https://wifi.loocha.cn/"+id+"/wifi/kickoff?wanip="+ip+"&brasip="+brasIp, nil)
+	if err != nil {
+		return err
+	}
 	request.SetBasicAuth(account, passwd)
-	response, errRequest := newClient().Do(request)
-	checkErr(errRequest, "error requseting")
-	if response.StatusCode == http.StatusOK {
-		defer response.Body.Close()
-		body, errRead := ioutil.ReadAll(response.Body)
-		checkErr(errRead, "error reading")
-		passwdJson := &PasswdJson{}
-		errUnmarshal := json.Unmarshal(body, passwdJson)
-		checkErr(errUnmarshal, "Error Unmarshal")
-		code := passwdJson.TelecomWifiRes.Password
-		if len(code) != 6 {
-			return ""
-		}
-		return code
+	response, err := newClient(0).Do(request)
+	if err != nil {
+		return err
 	}
-	return ""
-}
-
-func getQrCode() string {
-	ip := wanIp
-	if ip == "" {
-		return ""
+	defer response.Body.Close()
+	if responseCode := response.StatusCode; responseCode == 200 {
+		return nil
 	}
-
-	request, errNewRequest := http.NewRequest("GET", "https://wifi.loocha.cn/0/wifi/qrcode"+"?brasip="+brasIp+"&ulanip="+ip+"&wlanip="+ip, nil)
-
-	checkErr(errNewRequest, "error new request")
-	response, errRequest := newClient().Do(request)
-	checkErr(errRequest, "error requseting")
-	if response.StatusCode == http.StatusOK {
-		defer response.Body.Close()
-		body, errRead := ioutil.ReadAll(response.Body)
-		checkErr(errRead, "error reading")
-		qrcodeJson := &QrcodeJson{}
-		errUnmarshal := json.Unmarshal(body, qrcodeJson)
-		checkErr(errUnmarshal, "Error Unmarshal")
-		qrcode := qrcodeJson.TelecomWifiRes.Password
-		if qrcode != "" {
-			return qrcode
-		}
-	}
-
-	return ""
-
-}
-
-func online() string {
-	initial()
-	updateUser(XMLKeyWord.BrasIp, brasIp)
-	if wanIp == "" || brasIp == "" {
-		return "0"
-	}
-	fmt.Println("正在登陆...")
-	// code := getPasswd()
-	// if code == "" {
-	// 	return "密码获取错误请在掌上大学重新获取密码后尝试"
-	// }
-	// history := [...]int{-1, -1}
-	// for i := 0; i < 3; i++ {
-	// 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	// 	t := r.Intn(9)
-	// 	for _, h := range history {
-	// 		if t == h {
-	// 			t = r.Intn(9)
-	// 		}
-	// 	}
-	// 	if i != 2 {
-	// 		history[i] = t
-	// 	}
-	qrcode := getQrCode()
-	if qrcode == "" {
-		return "code获取异常"
-	}
-	print(qrcode)
-	// param := "qrcode=" + qrcode + "&code=" + code + "&type="
-	// param += ttype
-	// request, errNewRequest := http.NewRequest("POST", "https://wifi.loocha.cn/"+id+"/wifi/telecom/auto/login?"+param, nil)
-	// checkErr(errNewRequest, "error new request")
-	// request.SetBasicAuth(account, passwd)
-	// response, errRequest := newClient().Do(request)
-	// checkErr(errRequest, "error requseting")
-	// if response.StatusCode == http.StatusOK {
-	// 	defer response.Body.Close()
-	// 	body, errRead := ioutil.ReadAll(response.Body)
-	// 	checkErr(errRead, "error reading")
-	// 	onlineResult := &OnlineResult{}
-	// 	errUnmarshal := json.Unmarshal(body, onlineResult)
-	// 	checkErr(errUnmarshal, "Error Unmarshal")
-	// 	status := onlineResult.Status
-	// 	if status == "0" {
-	// 		return "0"
-	// 	} else {
-	// 		r := onlineResult.Response
-	// 		if r == "检测到你的帐号在其他设备登录" {
-	// 			// continue
-	// 		}
-	// 		return r
-	// 	}
-	// }
-	return "拨号异常"
-
-}
-
-func createUserFile() {
-	file, errCreate := os.Create("user.xml")
-	checkErr(errCreate, "error creating user.xml")
-	defer file.Close()
-}
-
-func checkXML() {
-	u := getUser()
-	if u.Account == "" || u.Passwd == "" || u.Id == "" || u.ServerId == "" {
-		updateUser(XMLKeyWord.Status, "0")
-	}
-}
-
-func menu() {
-	line := "*****"
-	fmt.Println(line, "键入选择的数字后回车", line)
-	fmt.Println(line, "1. 登陆", line)
-	fmt.Println(line, "2. 下线", line)
-	opt := ""
-	fmt.Scanln(&opt)
-	o := 0
-	opt = strings.TrimSpace(opt)
-	var err error
-	if o, err = strconv.Atoi(opt); err != nil || (o != 1 && o != 2) {
-		menu()
-	}
-	switch o {
-	case 1:
-		fmt.Println(divider)
-		login()
-		fmt.Println(divider)
-	case 2:
-		fmt.Println(divider)
-		kickOffDevice(getUser().LastIp, getUser().BrasIp)
-		fmt.Println(divider)
-	}
-	fmt.Println()
-	menu()
-}
-
-func main() {
-	if checkEncry() {
-		menu()
-	} else {
-		fmt.Println("请在user.xml中输入账号密码")
-	}
-	opt := ""
-	fmt.Scanln(&opt)
+	return errors.New("Failed to log out!")
 }
