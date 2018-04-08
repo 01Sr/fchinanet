@@ -38,7 +38,7 @@ Fchinanet是一款用于江苏、安徽等地电信校园上网的工具，如�
 - 安装Go 1.8+(低版本未测试，低版本部分ARM架构的编译不支持)
 - 配置Go环境变量
 - 安装依赖: `go get github.com/fatih/color`
-- 编译所需平台的可执行文件，可参考 [build.sh](/tmp/)
+- 编译所需平台的可执行文件，可参考 [build.sh](https://github.com/01Sr/fchinanet/blob/master/build.sh)
 
 ### 其他版本
 
@@ -46,5 +46,5 @@ Fchinanet是一款用于江苏、安徽等地电信校园上网的工具，如�
 
 [Node.js](https://github.com/Anapopo/FChinaNet.js)
 
-[Shell](https://github.com/Anapopo/FChinaNet.sh)
+[Shell](https://github.com/Anapopo/FChinaNet.sh)，此版本比较轻量，适合路由器上使用，**另外感谢 [Anapopo](https://github.com/Anapopo)老哥的提供这个版本**
 
