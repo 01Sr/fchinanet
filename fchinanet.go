@@ -2,7 +2,7 @@
 * @Author: 01sr
 * @Date:   2018-04-07 18:56:35
 * @Last Modified by:   01sr
-* @Last Modified time: 2018-04-08 20:33:54
+* @Last Modified time: 2018-04-10 19:12:31
  */
 package main
 
@@ -121,13 +121,20 @@ func (this *Mlog) e(msg ...interface{}) {
 func listOnline(devices []OnlinesS) {
 	if len(devices) == 0 {
 		mlog.i("No device online.")
-		os.Exit(0)
+		exit()
 	}
 	s := "Devices of online:"
 	for _, device := range devices {
 		s += "\n" + fmt.Sprintf("%+v", device)
 	}
 	mlog.i(s)
+}
+
+func exit() {
+	fmt.Println("Press any key to exit.")
+	var e byte
+	fmt.Scanf("%b", &e)
+	os.Exit(0)
 }
 
 func main() {
@@ -146,57 +153,55 @@ func main() {
 	name := flag.String("n", hostname, "The `device name`.")
 	flag.Parse() //解析输入的参数
 	if *account == "" || *passwd == "" {
-		mlog.e("The -a [account] and the -p [password] must be set!\nUsing -h to see more.\nPress any key to exit.")
-		var e byte
-		fmt.Scanf("%b", &e)
-		os.Exit(0)
+		mlog.e("The -a [account] and the -p [password] must be set!\nUsing -h to see more.")
+		exit()
 	}
 	mlog.i("accout: ", *account, ", password: ", *passwd, ", device name: ", *name)
 	wanIp, brasIp, err := initial()
 	if err != nil {
 		mlog.e(err.Error())
-		os.Exit(0)
+		exit()
 	}
 
 	user, err := login(*account, *passwd)
 	if err != nil {
 		mlog.e(err.Error())
-		os.Exit(0)
+		exit()
 	}
 	if *list {
 		devices, err := getOnlineDeviceList(user.Id, *account, *passwd)
 		if err != nil {
 			mlog.e(err.Error())
-			os.Exit(0)
+			exit()
 		}
 		listOnline(devices)
-		os.Exit(0)
+		exit()
 	}
 
 	if *behavior == 0 {
 		// offline
 		if wanIp != "0" {
 			mlog.w("Already offline.")
-			os.Exit(0)
+			exit()
 		}
 		devices, err := getOnlineDeviceList(user.Id, *account, *passwd)
 
 		if err != nil {
 			mlog.e(err.Error())
-			os.Exit(0)
+			exit()
 		}
 		dd := fmt.Sprintf("%+v", devices)
 		mlog.i(dd)
 		if len(devices) == 0 {
 			mlog.e("The current account does not match the login account.")
-			os.Exit(0)
+			exit()
 		}
 		for _, device := range devices {
 			if strconv.Itoa(device.Type) == *ttype {
 				err = kickOffDevice(user.Id, *account, *passwd, device.WanIp, device.BrasIp)
 				if err != nil {
 					mlog.e(err.Error())
-					os.Exit(0)
+					exit()
 				}
 				mlog.i("Log out successfully.")
 			}
@@ -205,19 +210,19 @@ func main() {
 		// online
 		if wanIp == "0" {
 			mlog.w("Already online.")
-			os.Exit(0)
+			exit()
 		}
 		code, err := getPasswd(user.Id, *account, *passwd)
 		if err != nil {
 			mlog.e(err.Error())
-			os.Exit(0)
+			exit()
 		}
 		mlog.i(code)
 		// 密码获取成功
 		qrcode, err := getQrCode(wanIp, brasIp, *name)
 		if err != nil {
 			mlog.e(err.Error())
-			os.Exit(0)
+			exit()
 		}
 		mlog.i(qrcode)
 		//qrcode获取成功
@@ -227,7 +232,7 @@ func main() {
 			devices, err = getOnlineDeviceList(user.Id, *account, *passwd)
 			if err != nil {
 				mlog.e(err.Error())
-				os.Exit(0)
+				exit()
 			}
 			for _, device := range devices {
 				if strconv.Itoa(device.Type) == *ttype {
@@ -235,7 +240,7 @@ func main() {
 					err = kickOffDevice(user.Id, *account, *passwd, device.WanIp, device.BrasIp)
 					if err != nil {
 						mlog.e(err.Error())
-						os.Exit(0)
+						exit()
 					}
 					mlog.i("Force \"" + device.Device + "\" offline successfully.")
 					break
@@ -254,6 +259,7 @@ func main() {
 			mlog.i("Login successfully.")
 		}
 	}
+	exit()
 }
 
 func newClient(timeoutSecond time.Duration) *http.Client {
@@ -346,11 +352,11 @@ func login(account, passwd string) (*UserS, error) {
 			return nil, err
 		}
 		if loginResult.Status != "0" {
-			return nil, errors.New("Failed to resolve user info! error[0].")
+			return nil, errors.New("Failed to resolve user info![0].")
 		}
 		return &loginResult.User, nil
 	}
-	return nil, errors.New("Failed to resolve user info! error[1].")
+	return nil, errors.New("Failed to resolve user info![1].")
 }
 
 func getPasswd(id, account, passwd string) (string, error) {
@@ -359,7 +365,7 @@ func getPasswd(id, account, passwd string) (string, error) {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/telecom/pwd?type=4", nil)
+	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/telecom/pwd?type=4&1=Android_college_100.100.100", nil)
 	if err != nil {
 		return "", err
 	}
@@ -381,11 +387,14 @@ func getPasswd(id, account, passwd string) (string, error) {
 		}
 		code := passwdJson.TelecomWifiRes.Password
 		if passwdJson.Status != "0" {
+			if code == "0" || code == "" {
+				return "", errors.New("Failed to get password![2]")
+			}
 			return "", errors.New(code)
 		}
 		return code, nil
 	}
-	return "", errors.New("Failed to get password!")
+	return "", errors.New("Failed to get password![3]")
 }
 
 func getQrCode(ip, brasIp, name string) (string, error) {
@@ -414,13 +423,13 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 			return "", err
 		}
 		if qrcodeJson.Status != "0" {
-			return "", errors.New("Failed to get qrcode! error[2]")
+			return "", errors.New("Failed to get qrcode![4]")
 		}
 		qrcode := qrcodeJson.TelecomWifiRes.Password
 		return qrcode, nil
 	}
 
-	return "", errors.New("Failed to get qrcode! error[3]")
+	return "", errors.New("Failed to get qrcode![5]")
 }
 
 func online(id, account, passwd, code, qrcode, ttype string) error {
