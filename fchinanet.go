@@ -2,7 +2,7 @@
 * @Author: 01sr
 * @Date:   2018-04-07 18:56:35
 * @Last Modified by:   01sr
-* @Last Modified time: 2018-04-10 19:12:31
+* @Last Modified time: 2018-04-11 17:22:21
  */
 package main
 
@@ -16,6 +16,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -93,7 +94,8 @@ type OnlineResult struct {
 type Mlog struct{}
 
 var (
-	mlog = new(Mlog)
+	mlog  = new(Mlog)
+	debug *bool
 )
 
 func (*Mlog) toString(msg ...interface{}) string {
@@ -104,6 +106,14 @@ func (this *Mlog) i(msg ...interface{}) {
 	s := this.toString(msg)
 	s = "[Info] " + s
 	color.Green(s)
+}
+
+func (this *Mlog) d(msg ...interface{}) {
+	if *debug {
+		s := this.toString(msg)
+		s = "[Debug] " + s
+		color.Blue(s)
+	}
 }
 
 func (this *Mlog) w(msg ...interface{}) {
@@ -136,6 +146,12 @@ func exit() {
 	fmt.Scanf("%b", &e)
 	os.Exit(0)
 }
+func encode(urlstring string) string {
+	u, _ := url.Parse(urlstring)
+	q := u.Query()
+	u.RawQuery = q.Encode() //urlencode
+	return u.String()
+}
 
 func main() {
 	account := flag.String("a", "", "The `account(phone number)` of ChinaTelecom(required!).")
@@ -144,6 +160,7 @@ func main() {
 	behavior := flag.Int("b", 1, "Set `1 or 0` to login or log out.")
 	list := flag.Bool("l", false, "List devices of online, can't use with -b together.")
 	force := flag.Bool("f", false, "If your account is using by another device, make it offline forcedly.")
+	debug = flag.Bool("d", false, "Enable debug mode.")
 	hostname, err := os.Hostname()
 
 	if err != nil {
@@ -285,7 +302,8 @@ func initial() (wanIp, brasIp string, err error) {
 			mlog.e(r)
 		}
 	}()
-	req, err := http.NewRequest("GET", "http://pre.f-young.cn/", nil)
+	u := encode("http://pre.f-young.cn/")
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", "", err
 	}
@@ -297,16 +315,22 @@ func initial() (wanIp, brasIp string, err error) {
 		return "", "", errors.New("Not the Telecom campus network.")
 	}
 
-	req, err = http.NewRequest("GET", "HTTP://test.f-young.cn/", nil)
+	u = encode("HTTP://test.f-young.cn/")
+	mlog.d("Access: " + u)
+	req, err = http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", "", err
 	}
+	defer rep.Body.Close()
 	rep, err = http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		return "", "", err
 	}
+	defer rep.Body.Close()
+	mlog.d("Response code: ", rep.StatusCode, "\nResponse header: ", rep.Header)
 	if rep.StatusCode == 302 {
 		content := rep.Header.Get("Location")
+		mlog.d(content)
 		argString := strings.Split(content, "?")
 		args := strings.SplitN(argString[1], "&", -1)
 		for _, param := range args {
@@ -331,7 +355,10 @@ func login(account, passwd string) (*UserS, error) {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("GET", "https://www.loocha.com.cn:8443/login", nil)
+
+	u := encode("https://www.loocha.com.cn:8443/login?1=Android_college_100.100.100")
+	mlog.d("Access: " + u)
+	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -340,12 +367,14 @@ func login(account, passwd string) (*UserS, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
+	mlog.d("Response code: ", response.StatusCode)
 	if response.StatusCode == http.StatusOK {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return nil, err
 		}
-		defer response.Body.Close()
+		mlog.d("Response body: ", string(body))
 		loginResult := &LoginResult{}
 		err = json.Unmarshal(body, loginResult)
 		if err != nil {
@@ -365,7 +394,9 @@ func getPasswd(id, account, passwd string) (string, error) {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/telecom/pwd?type=4&1=Android_college_100.100.100", nil)
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?type=4&1=Android_college_100.100.100")
+	mlog.d("Access: " + u)
+	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", err
 	}
@@ -374,12 +405,14 @@ func getPasswd(id, account, passwd string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer response.Body.Close()
+	mlog.d("Response code: ", response.StatusCode)
 	if response.StatusCode == http.StatusOK {
-		defer response.Body.Close()
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return "", err
 		}
+		mlog.d("Response body: ", string(body))
 		passwdJson := &PasswdJson{}
 		err = json.Unmarshal(body, passwdJson)
 		if err != nil {
@@ -403,7 +436,9 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/0/wifi/qrcode"+"?brasip="+brasIp+"&ulanip="+ip+"&wlanip="+ip+"&mm="+name, nil)
+	u := encode("https://wifi.loocha.cn/0/wifi/qrcode" + "?1=Android_college_100.100.100&brasip=" + brasIp + "&ulanip=" + ip + "&wlanip=" + ip + "&mm=" + name)
+	mlog.d("Access: " + u)
+	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", err
 	}
@@ -411,12 +446,14 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer response.Body.Close()
+	mlog.d("Response code: ", response.StatusCode)
 	if response.StatusCode == http.StatusOK {
-		defer response.Body.Close()
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return "", err
 		}
+		mlog.d("Response body: ", string(body))
 		qrcodeJson := &QrcodeJson{}
 		err = json.Unmarshal(body, qrcodeJson)
 		if err != nil {
@@ -428,6 +465,7 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 		qrcode := qrcodeJson.TelecomWifiRes.Password
 		return qrcode, nil
 	}
+	mlog.d(response.StatusCode)
 
 	return "", errors.New("Failed to get qrcode![5]")
 }
@@ -438,9 +476,11 @@ func online(id, account, passwd, code, qrcode, ttype string) error {
 			mlog.e(r)
 		}
 	}()
-	param := "qrcode=" + qrcode + "&code=" + code + "&type="
+	param := "1=Android_college_100.100.100&qrcode=" + qrcode + "&code=" + code + "&type="
 	param += ttype
-	request, err := http.NewRequest("POST", "https://wifi.loocha.cn/"+id+"/wifi/telecom/auto/login?"+param, nil)
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/auto/login?" + param)
+	mlog.d("Access: " + u)
+	request, err := http.NewRequest("POST", u, nil)
 	if err != nil {
 		return err
 	}
@@ -449,12 +489,14 @@ func online(id, account, passwd, code, qrcode, ttype string) error {
 	if err != nil {
 		return err
 	}
+	defer response.Body.Close()
+	mlog.d("Response code: ", response.StatusCode)
 	if response.StatusCode == http.StatusOK {
-		defer response.Body.Close()
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return err
 		}
+		mlog.d("Response body: ", string(body))
 		onlineResult := &OnlineResult{}
 		err = json.Unmarshal(body, onlineResult)
 		if err != nil {
@@ -475,7 +517,9 @@ func getOnlineDeviceList(id, account, passwd string) ([]OnlinesS, error) {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("GET", "https://wifi.loocha.cn/"+id+"/wifi/status", nil)
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/status?1=Android_college_100.100.100")
+	mlog.d("Access: " + u)
+	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -488,12 +532,14 @@ func getOnlineDeviceList(id, account, passwd string) ([]OnlinesS, error) {
 		return nil, err
 	}
 	defer response.Body.Close()
+	mlog.d("Response code: ", response.StatusCode)
 	if response.StatusCode == http.StatusOK {
 		onlineDevice := &OnlineDevice{}
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return nil, err
 		}
+		mlog.d("Response body: ", string(body))
 		err = json.Unmarshal(body, onlineDevice)
 		if err != nil {
 			return nil, err
@@ -512,7 +558,7 @@ func kickOffDevice(id, account, passwd, ip, brasIp string) error {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("DELETE", "https://wifi.loocha.cn/"+id+"/wifi/kickoff?wanip="+ip+"&brasip="+brasIp, nil)
+	request, err := http.NewRequest("DELETE", "https://wifi.loocha.cn/"+id+"/wifi/kickoff?1=Android_college_100.100.100&wanip="+ip+"&brasip="+brasIp, nil)
 	if err != nil {
 		return err
 	}
