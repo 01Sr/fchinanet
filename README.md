@@ -14,6 +14,8 @@ Fchinanet是一款用于江苏、安徽等地电信校园上网的工具，接�
 
 ### 使用方式
 
+**[win用户操作参考](https://github.com/01Sr/fchinanet/issues/9)**
+
 - 帮助 `./fchinanet -h`
 
 ![mage-20180408152436](http://osxhu29uq.bkt.clouddn.com/img/2018-04-08-image-201804081524360.png)
