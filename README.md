@@ -42,7 +42,7 @@ Fchinanet是一款用于江苏、安徽等地电信校园上网的工具，接�
 - 安装依赖: `go get github.com/fatih/color`
 - 编译所需平台的可执行文件，可参考 [build.sh](https://github.com/01Sr/fchinanet/blob/master/build.sh)
 
-### 其他版本
+### 其他版本(不保证同步更新)
 
 [Android](https://github.com/01Sr/FChinanetAndroid) 
 
