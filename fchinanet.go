@@ -2,12 +2,14 @@
 * @Author: 01sr
 * @Date:   2018-04-07 18:56:35
 * @Last Modified by:   01sr
-* @Last Modified time: 2018-04-11 17:22:21
+* @Last Modified time: 2018-05-08 22:52:19
  */
 package main
 
 import (
+	"crypto/md5"
 	"crypto/tls"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -21,8 +23,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"crypto/md5"
-	"encoding/hex"
 )
 
 type OnlinesS struct {
@@ -231,7 +231,7 @@ func main() {
 			mlog.w("Already online.")
 			exit()
 		}
-		code, err := getPasswd(user.Id, *account, *passwd,*name,strings.Split(user.Did,"#")[0])
+		code, err := getPasswd(user.Id, *account, *passwd, *name, strings.Split(user.Did, "#")[0])
 		if err != nil {
 			mlog.e(err.Error())
 			exit()
@@ -245,7 +245,7 @@ func main() {
 		}
 		mlog.i(qrcode)
 		//qrcode获取成功
-		err = online(user.Id, *account, *passwd, code, qrcode, *ttype,*name,strings.Split(user.Did,"#")[0])
+		err = online(user.Id, *account, *passwd, code, qrcode, *ttype, *name, strings.Split(user.Did, "#")[0])
 		if err != nil && strings.Contains(err.Error(), "检测到你的帐号在其他设备登录") && *force {
 			var devices []OnlinesS
 			devices, err = getOnlineDeviceList(user.Id, *account, *passwd)
@@ -266,7 +266,7 @@ func main() {
 				}
 			}
 			time.Sleep(time.Second)
-			err = online(user.Id, *account, *passwd, code, qrcode, *ttype,*name,strings.Split(user.Did,"#")[0])
+			err = online(user.Id, *account, *passwd, code, qrcode, *ttype, *name, strings.Split(user.Did, "#")[0])
 			if err != nil {
 				mlog.e("test " + err.Error())
 			}
@@ -390,8 +390,7 @@ func login(account, passwd string) (*UserS, error) {
 	return nil, errors.New("Failed to resolve user info![1].")
 }
 
-func md5f(text string) string{
-	mlog.e(text)
+func md5f(text string) string {
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(text))
 	cipherStr := md5Ctx.Sum(nil)
@@ -399,17 +398,17 @@ func md5f(text string) string{
 }
 
 // mobile=17751776505&model=FRD-L09&server_did=3bc1c648-1c41-4584-95b9-15b993f85484&time=1525775047000&type=1
-func getPasswd(id, account, passwd,model ,sdid string) (string, error) {
+func getPasswd(id, account, passwd, model, sdid string) (string, error) {
 	defer func() {
 		if r := recover(); r != nil {
 			mlog.e(r)
 		}
 	}()
-	time := time.Now().UnixNano()/1000000
-	ts:=strconv.FormatInt(time,10)
-	params:="&server_did="+sdid+"&time="+ts+"&type=1"
-	sign := md5f("mobile="+account+"&model="+model+params)
-	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?1=Android_college_100.100.100"+"&mm="+model+params+"&sign="+sign)
+	time := time.Now().UnixNano() / 1000000
+	ts := strconv.FormatInt(time, 10)
+	params := "&server_did=" + sdid + "&time=" + ts + "&type=1"
+	sign := md5f("mobile=" + account + "&model=" + model + params)
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?1=Android_college_100.100.100" + "&mm=" + model + params + "&sign=" + sign)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -491,11 +490,11 @@ func online(id, account, passwd, code, qrcode, ttype, model, sdid string) error 
 			mlog.e(r)
 		}
 	}()
-	time := time.Now().UnixNano()/1000000
-	ts:=strconv.FormatInt(time,10)
-	params:="&server_did="+sdid+"&time="+ts+"&type="+ttype
-	sign := md5f("mobile="+account+"&model="+model+params)
-	param := "1=Android_college_100.100.100&qrcode=" + qrcode + "&code=" + code + "&type="+ttype+"&mm="+model+"&server_did="+sdid+"&time="+strconv.FormatInt(time,10)+"&sign="+sign
+	time := time.Now().UnixNano() / 1000000
+	ts := strconv.FormatInt(time, 10)
+	params := "&server_did=" + sdid + "&time=" + ts + "&type=" + ttype
+	sign := md5f("mobile=" + account + "&model=" + model + params)
+	param := "1=Android_college_100.100.100&qrcode=" + qrcode + "&code=" + code + "&type=" + ttype + "&mm=" + model + "&server_did=" + sdid + "&time=" + strconv.FormatInt(time, 10) + "&sign=" + sign
 	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/auto/login?" + param)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("POST", u, nil)

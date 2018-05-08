@@ -1,5 +1,5 @@
 # project
 /build/
-
+test.go
 # macos
 .DS_Store
