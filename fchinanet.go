@@ -21,6 +21,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"crypto/md5"
+	"encoding/hex"
 )
 
 type OnlinesS struct {
@@ -229,7 +231,7 @@ func main() {
 			mlog.w("Already online.")
 			exit()
 		}
-		code, err := getPasswd(user.Id, *account, *passwd)
+		code, err := getPasswd(user.Id, *account, *passwd,*name,strings.Split(user.Did,"#")[0])
 		if err != nil {
 			mlog.e(err.Error())
 			exit()
@@ -243,7 +245,7 @@ func main() {
 		}
 		mlog.i(qrcode)
 		//qrcode获取成功
-		err = online(user.Id, *account, *passwd, code, qrcode, *ttype)
+		err = online(user.Id, *account, *passwd, code, qrcode, *ttype,*name,strings.Split(user.Did,"#")[0])
 		if err != nil && strings.Contains(err.Error(), "检测到你的帐号在其他设备登录") && *force {
 			var devices []OnlinesS
 			devices, err = getOnlineDeviceList(user.Id, *account, *passwd)
@@ -264,7 +266,7 @@ func main() {
 				}
 			}
 			time.Sleep(time.Second)
-			err = online(user.Id, *account, *passwd, code, qrcode, *ttype)
+			err = online(user.Id, *account, *passwd, code, qrcode, *ttype,*name,strings.Split(user.Did,"#")[0])
 			if err != nil {
 				mlog.e("test " + err.Error())
 			}
@@ -388,13 +390,26 @@ func login(account, passwd string) (*UserS, error) {
 	return nil, errors.New("Failed to resolve user info![1].")
 }
 
-func getPasswd(id, account, passwd string) (string, error) {
+func md5f(text string) string{
+	mlog.e(text)
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(text))
+	cipherStr := md5Ctx.Sum(nil)
+	return strings.ToUpper(hex.EncodeToString(cipherStr))
+}
+
+// mobile=17751776505&model=FRD-L09&server_did=3bc1c648-1c41-4584-95b9-15b993f85484&time=1525775047000&type=1
+func getPasswd(id, account, passwd,model ,sdid string) (string, error) {
 	defer func() {
 		if r := recover(); r != nil {
 			mlog.e(r)
 		}
 	}()
-	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?type=4&1=Android_college_100.100.100")
+	time := time.Now().UnixNano()/1000000
+	ts:=strconv.FormatInt(time,10)
+	params:="&server_did="+sdid+"&time="+ts+"&type=1"
+	sign := md5f("mobile="+account+"&model="+model+params)
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?1=Android_college_100.100.100"+"&mm="+model+params+"&sign="+sign)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -470,14 +485,17 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 	return "", errors.New("Failed to get qrcode![5]")
 }
 
-func online(id, account, passwd, code, qrcode, ttype string) error {
+func online(id, account, passwd, code, qrcode, ttype, model, sdid string) error {
 	defer func() {
 		if r := recover(); r != nil {
 			mlog.e(r)
 		}
 	}()
-	param := "1=Android_college_100.100.100&qrcode=" + qrcode + "&code=" + code + "&type="
-	param += ttype
+	time := time.Now().UnixNano()/1000000
+	ts:=strconv.FormatInt(time,10)
+	params:="&server_did="+sdid+"&time="+ts+"&type="+ttype
+	sign := md5f("mobile="+account+"&model="+model+params)
+	param := "1=Android_college_100.100.100&qrcode=" + qrcode + "&code=" + code + "&type="+ttype+"&mm="+model+"&server_did="+sdid+"&time="+strconv.FormatInt(time,10)+"&sign="+sign
 	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/auto/login?" + param)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("POST", u, nil)
