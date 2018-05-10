@@ -2,7 +2,7 @@
 * @Author: 01sr
 * @Date:   2018-04-07 18:56:35
 * @Last Modified by:   01sr
-* @Last Modified time: 2018-05-08 22:52:19
+* @Last Modified time: 2018-05-09 22:00:24
  */
 package main
 
@@ -162,6 +162,7 @@ func main() {
 	behavior := flag.Int("b", 1, "Set `1 or 0` to login or log out.")
 	list := flag.Bool("l", false, "List devices of online, can't use with -b together.")
 	force := flag.Bool("f", false, "If your account is using by another device, make it offline forcedly.")
+	bigtime:=flag.Bool("bt", false, "Set a big time to resolve authentication failures due to local time errors.")
 	debug = flag.Bool("d", false, "Enable debug mode.")
 	hostname, err := os.Hostname()
 
@@ -231,7 +232,7 @@ func main() {
 			mlog.w("Already online.")
 			exit()
 		}
-		code, err := getPasswd(user.Id, *account, *passwd, *name, strings.Split(user.Did, "#")[0])
+		code, err := getPasswd(user.Id, *account, *passwd, *name, strings.Split(user.Did, "#")[0],*bigtime)
 		if err != nil {
 			mlog.e(err.Error())
 			exit()
@@ -245,7 +246,7 @@ func main() {
 		}
 		mlog.i(qrcode)
 		//qrcode获取成功
-		err = online(user.Id, *account, *passwd, code, qrcode, *ttype, *name, strings.Split(user.Did, "#")[0])
+		err = online(user.Id, *account, *passwd, code, qrcode, *ttype, *name, strings.Split(user.Did, "#")[0],*bigtime)
 		if err != nil && strings.Contains(err.Error(), "检测到你的帐号在其他设备登录") && *force {
 			var devices []OnlinesS
 			devices, err = getOnlineDeviceList(user.Id, *account, *passwd)
@@ -266,9 +267,9 @@ func main() {
 				}
 			}
 			time.Sleep(time.Second)
-			err = online(user.Id, *account, *passwd, code, qrcode, *ttype, *name, strings.Split(user.Did, "#")[0])
+			err = online(user.Id, *account, *passwd, code, qrcode, *ttype, *name, strings.Split(user.Did, "#")[0],*bigtime)
 			if err != nil {
-				mlog.e("test " + err.Error())
+				mlog.e(err.Error())
 			}
 		}
 
@@ -397,14 +398,16 @@ func md5f(text string) string {
 	return strings.ToUpper(hex.EncodeToString(cipherStr))
 }
 
-// mobile=17751776505&model=FRD-L09&server_did=3bc1c648-1c41-4584-95b9-15b993f85484&time=1525775047000&type=1
-func getPasswd(id, account, passwd, model, sdid string) (string, error) {
+func getPasswd(id, account, passwd, model, sdid string,bigtime bool) (string, error) {
 	defer func() {
 		if r := recover(); r != nil {
 			mlog.e(r)
 		}
 	}()
 	time := time.Now().UnixNano() / 1000000
+	if bigtime{
+		time = 2525780731349
+	}
 	ts := strconv.FormatInt(time, 10)
 	params := "&server_did=" + sdid + "&time=" + ts + "&type=1"
 	sign := md5f("mobile=" + account + "&model=" + model + params)
@@ -484,13 +487,16 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 	return "", errors.New("Failed to get qrcode![5]")
 }
 
-func online(id, account, passwd, code, qrcode, ttype, model, sdid string) error {
+func online(id, account, passwd, code, qrcode, ttype, model, sdid string,bigtime bool) error {
 	defer func() {
 		if r := recover(); r != nil {
 			mlog.e(r)
 		}
 	}()
 	time := time.Now().UnixNano() / 1000000
+	if bigtime{
+		time = 2525780731349
+	}
 	ts := strconv.FormatInt(time, 10)
 	params := "&server_did=" + sdid + "&time=" + ts + "&type=" + ttype
 	sign := md5f("mobile=" + account + "&model=" + model + params)

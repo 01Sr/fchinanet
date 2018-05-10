@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a60af15b-5b4a-4417-921b-3118bd7590bb" name="Default" comment="" />
+    <list default="true" id="a60af15b-5b4a-4417-921b-3118bd7590bb" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fchinanet.go" beforeDir="false" afterPath="$PROJECT_DIR$/fchinanet.go" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,31 +24,16 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="16" column="23" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="23" />
-              <folding>
-                <element signature="e#139#194#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fchinanet.go" pinned="false" current-in-tab="false">
+      <file leaf-file-name="fchinanet.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fchinanet.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="353" column="33" selection-start-line="353" selection-start-column="33" selection-end-line="353" selection-end-column="33" />
-              <folding>
-                <element signature="e#139#340#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="84">
+              <caret line="152" column="18" selection-start-line="152" selection-start-column="18" selection-end-line="152" selection-end-column="18" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="fchinanet.bat" pinned="false" current-in-tab="true">
+      <file leaf-file-name="fchinanet.bat" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build/fchinanet.bat">
           <provider selected="true" editor-type-id="text-editor">
             <state>
@@ -56,7 +45,7 @@
       <file leaf-file-name="itoa.go" pinned="false" current-in-tab="false">
         <entry file="file:///usr/local/Homebrew/Cellar/go/1.8.3/libexec/src/strconv/itoa.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
+            <state relative-caret-position="255">
               <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
             </state>
           </provider>
@@ -108,8 +97,8 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/ui/fcui.go" />
         <option value="$PROJECT_DIR$/test.go" />
-        <option value="$PROJECT_DIR$/fchinanet.go" />
         <option value="$PROJECT_DIR$/build/fchinanet.bat" />
+        <option value="$PROJECT_DIR$/fchinanet.go" />
       </list>
     </option>
   </component>
@@ -122,11 +111,11 @@
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths />
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
     <option name="x" value="52" />
     <option name="y" value="23" />
     <option name="width" value="1388" />
-    <option name="height" value="439" />
+    <option name="height" value="877" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -249,14 +238,13 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="52" y="23" width="1388" height="877" extended-state="6" />
+    <frame x="52" y="23" width="1388" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21181557" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10590778" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50432277" side_tool="true" visible="true" weight="0.32876712" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49567723" visible="true" weight="0.32876712" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4884726" weight="0.49688667" />
@@ -268,8 +256,9 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49567723" visible="true" weight="0.32876712" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -283,30 +272,47 @@
     <option name="LAST_COMMIT_MESSAGE" value="添加签名" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/fchinanet.go">
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="12" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
+        <state relative-caret-position="75">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/fcui.go">
+    <entry file="file://$PROJECT_DIR$/test.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
+        <state relative-caret-position="165">
+          <caret line="16" column="23" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="23" />
           <folding>
-            <element signature="e#14#117#0" expanded="true" />
+            <element signature="e#139#194#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/bundler.json">
+    <entry file="file://$PROJECT_DIR$/fchinanet.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="1" selection-start-line="2" selection-start-column="1" selection-end-line="2" selection-end-column="1" />
+        <state relative-caret-position="5295">
+          <caret line="353" column="33" selection-start-line="353" selection-start-column="33" selection-end-line="353" selection-end-column="33" />
         </state>
       </provider>
     </entry>
+    <entry file="file:///usr/local/Homebrew/Cellar/go/1.8.3/libexec/src/strconv/itoa.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/fchinanet.bat">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="9" selection-start-column="9" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/fchinanet.go" />
+    <entry file="file://$PROJECT_DIR$/ui/fcui.go" />
+    <entry file="file://$PROJECT_DIR$/ui/bundler.json" />
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -314,30 +320,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/resources/app/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/output/resources/app/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/fcui.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="915">
-          <caret line="61" column="22" lean-forward="true" selection-start-line="61" selection-start-column="22" selection-end-line="61" selection-end-column="22" />
-          <folding>
-            <element signature="e#14#117#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/resources/app/index.html" />
+    <entry file="file://$PROJECT_DIR$/ui/output/resources/app/index.html" />
+    <entry file="file://$PROJECT_DIR$/ui/fcui.go" />
     <entry file="file://$PROJECT_DIR$/build/ui/vendor/astilectron/src/client.js" />
     <entry file="file://$PROJECT_DIR$/build/ui/vendor/astilectron/main.js" />
     <entry file="file://$USER_HOME$/go/src/github.com/asticode/go-astilectron/notification.go">
@@ -354,20 +339,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/fchinanet.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="4" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/fcui.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="19" column="5" lean-forward="true" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/core/fchinanet.go" />
+    <entry file="file://$PROJECT_DIR$/ui/fcui.go" />
     <entry file="file://$USER_HOME$/go/src/github.com/asticode/go-astilectron/writer.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="409">
@@ -483,56 +456,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build/ui/vendor/astilectron/src/client.js" />
-    <entry file="file://$PROJECT_DIR$/core/fchinanet.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="12" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/bundler.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="1" selection-start-line="2" selection-start-column="1" selection-end-line="2" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/resources/app/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/output/vendor/astilectron/src/consts.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-925" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/bind_darwin_amd64.go">
-      <provider selected="true" editor-type-id="LargeFileEditor">
-        <state relative-caret-position="-1015">
-          <caret line="8" selection-start-line="8" selection-end-line="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/fcui.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="14" column="19" selection-start-line="14" selection-start-column="19" selection-end-line="14" selection-end-column="19" />
-          <folding>
-            <element signature="e#14#117#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ui/output/resources/app/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/core/fchinanet.go" />
+    <entry file="file://$PROJECT_DIR$/ui/bundler.json" />
+    <entry file="file://$PROJECT_DIR$/ui/resources/app/index.html" />
+    <entry file="file://$PROJECT_DIR$/ui/output/vendor/astilectron/src/consts.js" />
+    <entry file="file://$PROJECT_DIR$/ui/bind_darwin_amd64.go" />
+    <entry file="file://$PROJECT_DIR$/ui/fcui.go" />
+    <entry file="file://$PROJECT_DIR$/ui/output/resources/app/index.html" />
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -542,27 +472,17 @@
     </entry>
     <entry file="file:///usr/local/Homebrew/Cellar/go/1.8.3/libexec/src/strconv/itoa.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
+        <state relative-caret-position="255">
           <caret line="17" column="5" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
+        <state relative-caret-position="165">
           <caret line="16" column="23" selection-start-line="16" selection-start-column="23" selection-end-line="16" selection-end-column="23" />
           <folding>
             <element signature="e#139#194#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fchinanet.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="353" column="33" selection-start-line="353" selection-start-column="33" selection-end-line="353" selection-end-column="33" />
-          <folding>
-            <element signature="e#139#340#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -571,6 +491,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="9" selection-start-column="9" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fchinanet.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="152" column="18" selection-start-line="152" selection-start-column="18" selection-end-line="152" selection-end-column="18" />
         </state>
       </provider>
     </entry>
