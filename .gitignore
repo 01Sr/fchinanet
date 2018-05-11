@@ -1,5 +1,6 @@
 # project
 /build/
 test.go
+/.idea/
 # macos
 .DS_Store

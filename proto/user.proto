@@ -1,0 +1,82 @@
+syntax = "proto3";
+package cmessage;
+
+message user {
+    int32 status = 0x01;
+    int64 id = 0x3;
+    string response = 0x2;
+    int64 fid = 0x24;
+    int64 fid2 = 0x25;
+    string uuid = 0x04;
+    string account = 0x21;
+    int32 follow_version = 0x13;
+    //    ACCOUNT_FIELD_NUMBER = 0x21;
+    //
+    //    AVATAR_FIELD_NUMBER = 0x6;
+    //
+    //    BIRTHCITYID_FIELD_NUMBER = 0x10;
+    //
+    //    BIRTHDAY_FIELD_NUMBER = 0xf;
+    //
+    //    CARRIERCITYID_FIELD_NUMBER = 0x1c;
+    //
+    //    CARRIER_FIELD_NUMBER = 0x1b;
+    //
+    //    CODE_FIELD_NUMBER = 0x23;
+    //
+    //    COVERURL_FIELD_NUMBER = 0x11;
+    //
+    //    DEPARTMENTID_FIELD_NUMBER = 0xc;
+    //
+    //    DEPARTMENT_FIELD_NUMBER = 0xd;
+    //
+    //    DID_FIELD_NUMBER = 0x1a;
+    //
+    //    FID2_FIELD_NUMBER = 0x25;
+    //
+    //    FID_FIELD_NUMBER = 0x24;
+    //
+    //    FOLLOWVERSION_FIELD_NUMBER = 0x13;
+    //
+    //    GENDER_FIELD_NUMBER = 0x7;
+    //
+    //    ID_FIELD_NUMBER = 0x3;
+    //
+    //    ISSILENCE_FIELD_NUMBER = 0x26;
+    //
+    //    MOBILE_FIELD_NUMBER = 0x19;
+    //
+    //    NAME_FIELD_NUMBER = 0x5;
+    //
+    //    PASSWORD_FIELD_NUMBER = 0x22;
+    //
+    //    PRIVILEGE_FIELD_NUMBER = 0x15;
+    //
+    //    RESPONSE_FIELD_NUMBER = 0x2;
+    //
+    //    ROLENAME_FIELD_NUMBER = 0x18;
+    //
+    //    ROLE_FIELD_NUMBER = 0x17;
+    //
+    //    SCHOOLID_FIELD_NUMBER = 0xa;
+    //
+    //    SCHOOL_FIELD_NUMBER = 0xb;
+    //
+    //    SIGNATURE_FIELD_NUMBER = 0x12;
+    //
+    //    STATUS_FIELD_NUMBER = 0x1;
+    //
+    //    TIME_FIELD_NUMBER = 0x1d;
+    //
+    //    USERSTATS_FIELD_NUMBER = 0x14;
+    //
+    //    UUID_FIELD_NUMBER = 0x4;
+    //
+    //    VERIFYSTATE_FIELD_NUMBER = 0x8;
+    //
+    //    VERIFYTITLE_FIELD_NUMBER = 0x9;
+    //
+    //    WIFIURL_FIELD_NUMBER = 0x16;
+    //
+    //    YEAR_FIELD_NUMBER = 0xe;
+}
