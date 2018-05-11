@@ -25,6 +25,7 @@ import (
 	"time"
 	"github.com/golang/protobuf/proto"
 	"fchinanet/proto"
+	"regexp"
 )
 
 type OnlinesS struct {
@@ -308,7 +309,7 @@ func initial() (wanIp, brasIp string, err error) {
 			mlog.e(r)
 		}
 	}()
-	u := encode("http://pre.f-young.cn/")
+	u := encode("http://pre.f-young.cn/js/conf.js")
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return "", "", err
@@ -320,18 +321,23 @@ func initial() (wanIp, brasIp string, err error) {
 	if rep.StatusCode != 200 {
 		return "", "", errors.New("Not the Telecom campus network.")
 	}else{
-		//defer rep.Body.Close()
-		//body, err := ioutil.ReadAll(rep.Body)
-		//if err != nil {
-		//	return "","", err
-		//}
-		//mlog.d(string(body))
-		//r,err:=regexp.Compile("(?:LoochaCollege-).*(?:-)")
-		//if err!=nil{
-		//	return "","",err
-		//}
-		//version=r.FindString(string(body))
-		//mlog.d("App Version: "+version)
+		defer rep.Body.Close()
+		body, err := ioutil.ReadAll(rep.Body)
+		if err != nil {
+			return "","", err
+		}
+		mlog.d(string(body))
+		r,err:=regexp.Compile("(?:LoochaCollege-).*(?:-)")
+		if err!=nil{
+			return "","",err
+		}
+
+		version=r.FindString(string(body))
+		vs:=strings.Split(version,"-")
+		if len(vs) >= 2{
+			version = "Android_college_"+vs[1]
+		}
+		mlog.d("App Version: "+version)
 	}
 
 	u = encode("HTTP://test.f-young.cn/")
@@ -375,8 +381,7 @@ func login(account, passwd string) (*UserS, error) {
 		}
 	}()
 
-	//u := encode("https://www.loocha.com.cn:8443/login?1=Android_college_9.3.6")
-	u:=encode("https://cps.loocha.cn:9607/anony/login?1=Android_college_5.3.6&server_did=3bc1c648-1c41-4584-95b9-15b993f85484&pubc=0&vv=5003006&mm=FRD-L09&sv=7.0_24&imsi=460026519326265&rl=1920*1080&did=869953026331199_898600F5101450305777_6afd52fc645ac221_460026519326265_&version=Android_college_5.3.6&auto=1&model=FRD-L09")
+	u:=encode("https://cps.loocha.cn:9607/anony/login?1="+version)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -394,7 +399,7 @@ func login(account, passwd string) (*UserS, error) {
 		if err != nil {
 			return nil, err
 		}
-		mlog.d("Response body: ", string(body))
+		//mlog.d("Response body: ", string(body))
 		//loginResult := &LoginResult{}
 		//err = json.Unmarshal(body, loginResult)
 		// protobuf解析
@@ -436,7 +441,7 @@ func getPasswd(id, account, passwd, model, sdid string,bigtime bool) (string, er
 	ts := strconv.FormatInt(time, 10)
 	params := "&server_did=" + sdid + "&time=" + ts + "&type=1"
 	sign := md5f("mobile=" + account + "&model=" + model + params)
-	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?1=Android_college_9.3.6" + "&mm=" + model + params + "&sign=" + sign)
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/pwd?1="+ version + "&mm=" + model + params + "&sign=" + sign)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -478,7 +483,7 @@ func getQrCode(ip, brasIp, name string) (string, error) {
 			mlog.e(r)
 		}
 	}()
-	u := encode("https://wifi.loocha.cn/0/wifi/qrcode" + "?1=Android_college_9.3.6&brasip=" + brasIp + "&ulanip=" + ip + "&wlanip=" + ip + "&mm=" + name)
+	u := encode("https://wifi.loocha.cn/0/wifi/qrcode" + "?1="+version+"&brasip=" + brasIp + "&ulanip=" + ip + "&wlanip=" + ip + "&mm=" + name)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -525,7 +530,7 @@ func online(id, account, passwd, code, qrcode, ttype, model, sdid string,bigtime
 	ts := strconv.FormatInt(time, 10)
 	params := "&server_did=" + sdid + "&time=" + ts + "&type=" + ttype
 	sign := md5f("mobile=" + account + "&model=" + model + params)
-	param := "1=Android_college_9.3.6&qrcode=" + qrcode + "&code=" + code + "&type=" + ttype + "&mm=" + model + "&server_did=" + sdid + "&time=" + strconv.FormatInt(time, 10) + "&sign=" + sign
+	param := "1="+version+"&qrcode=" + qrcode + "&code=" + code + "&type=" + ttype + "&mm=" + model + "&server_did=" + sdid + "&time=" + strconv.FormatInt(time, 10) + "&sign=" + sign
 	u := encode("https://wifi.loocha.cn/" + id + "/wifi/telecom/auto/login?" + param)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("POST", u, nil)
@@ -565,7 +570,7 @@ func getOnlineDeviceList(id, account, passwd string) ([]OnlinesS, error) {
 			mlog.e(r)
 		}
 	}()
-	u := encode("https://wifi.loocha.cn/" + id + "/wifi/status?1=Android_college_9.3.6")
+	u := encode("https://wifi.loocha.cn/" + id + "/wifi/status?1="+version)
 	mlog.d("Access: " + u)
 	request, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -606,7 +611,7 @@ func kickOffDevice(id, account, passwd, ip, brasIp string) error {
 			mlog.e(r)
 		}
 	}()
-	request, err := http.NewRequest("DELETE", "https://wifi.loocha.cn/"+id+"/wifi/kickoff?1=Android_college_9.3.6&wanip="+ip+"&brasip="+brasIp, nil)
+	request, err := http.NewRequest("DELETE", "https://wifi.loocha.cn/"+id+"/wifi/kickoff?1="+version+"&wanip="+ip+"&brasip="+brasIp, nil)
 	if err != nil {
 		return err
 	}
