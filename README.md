@@ -2,6 +2,8 @@
 typora-copy-images-to: ipic
 ---
 
+# [掌大修改版](https://github.com/01Sr/fchinanet/releases/download/v3.5-beta/LoochaCollege-5.3.6.apk)
+
 Fchinanet
 ===
 

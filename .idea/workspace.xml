@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a60af15b-5b4a-4417-921b-3118bd7590bb" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/fchinanet.go" beforeDir="false" afterPath="$PROJECT_DIR$/fchinanet.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/proto/cmessage/User.java" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -13,20 +14,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="user.proto" pinned="false" current-in-tab="false">
+      <file leaf-file-name="user.proto" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/proto/user.proto">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="32" selection-start-line="11" selection-start-column="32" selection-end-line="11" selection-end-column="32" />
+            <state relative-caret-position="180">
+              <caret line="12" column="38" lean-forward="true" selection-start-line="12" selection-start-column="38" selection-end-line="12" selection-end-column="38" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="User.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/proto/cmessage/User.java">
+      <file leaf-file-name="build.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-9346">
-              <caret line="55" column="36" selection-start-line="55" selection-start-column="36" selection-end-line="55" selection-end-column="36" />
+            <state relative-caret-position="195">
+              <caret line="13" column="28" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -34,17 +35,17 @@
       <file leaf-file-name="user.pb.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/proto/user.pb.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
+            <state relative-caret-position="615">
+              <caret line="43" column="59" selection-start-line="43" selection-start-column="59" selection-end-line="43" selection-end-column="59" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="fchinanet.go" pinned="false" current-in-tab="true">
+      <file leaf-file-name="fchinanet.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fchinanet.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="475">
-              <caret line="402" column="39" lean-forward="true" selection-start-line="402" selection-start-column="39" selection-end-line="402" selection-end-column="39" />
+            <state relative-caret-position="178">
+              <caret line="408" column="23" lean-forward="true" selection-start-line="408" selection-start-column="23" selection-end-line="408" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -92,9 +93,13 @@
       <find>DataDirectory</find>
       <find>getPass</find>
       <find>force</find>
-      <find>ver</find>
       <find>9.3.6</find>
       <find>9.</find>
+      <find>9.3</find>
+      <find>ver</find>
+      <find>TelecomWifiResS</find>
+      <find>getQr</find>
+      <find>Can</find>
     </findStrings>
     <dirStrings>
       <dir>$USER_HOME$/go/src</dir>
@@ -132,8 +137,8 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="52" />
-    <option name="y" value="23" />
+    <option name="x" value="256" />
+    <option name="y" value="295" />
     <option name="width" value="1388" />
     <option name="height" value="877" />
   </component>
@@ -142,6 +147,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -154,17 +160,10 @@
               <item name="fchinanet" type="462c0819:PsiDirectoryNode" />
               <item name="proto" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="fchinanet" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fchinanet" type="462c0819:PsiDirectoryNode" />
-              <item name="proto" type="462c0819:PsiDirectoryNode" />
-              <item name="cmessage" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -264,39 +263,27 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="59" y="23" width="1868" height="1057" extended-state="6" />
+    <frame x="256" y="295" width="1388" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10706638" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15778098" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.51338327" side_tool="true" visible="true" weight="0.14445575" />
+      <window_info active="true" anchor="bottom" id="Event Log" order="7" sideWeight="0.50432277" side_tool="true" visible="true" weight="0.23287672" />
       <window_info anchor="right" id="Database" order="3" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49567723" weight="0.32876712" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4866167" visible="true" weight="0.14445575" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4884726" weight="0.49688667" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10590778" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4884726" weight="0.49688667" />
-      <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50432277" side_tool="true" visible="true" weight="0.32876712" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49567723" visible="true" weight="0.32876712" />
-      <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info id="Favorites" order="2" side_tool="true" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,7 +297,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="添加签名" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test.go" />
     <entry file="file://$PROJECT_DIR$/fchinanet.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5295">
@@ -507,31 +493,32 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/proto/cmessage/User.java" />
     <entry file="file://$PROJECT_DIR$/proto/user.pb.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="12" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
+        <state relative-caret-position="615">
+          <caret line="43" column="59" selection-start-line="43" selection-start-column="59" selection-end-line="43" selection-end-column="59" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/proto/user.proto">
+    <entry file="file://$PROJECT_DIR$/build.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="32" selection-start-line="11" selection-start-column="32" selection-end-line="11" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/proto/cmessage/User.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-9346">
-          <caret line="55" column="36" selection-start-line="55" selection-start-column="36" selection-end-line="55" selection-end-column="36" />
+        <state relative-caret-position="195">
+          <caret line="13" column="28" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fchinanet.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="475">
-          <caret line="402" column="39" lean-forward="true" selection-start-line="402" selection-start-column="39" selection-end-line="402" selection-end-column="39" />
+        <state relative-caret-position="178">
+          <caret line="408" column="23" lean-forward="true" selection-start-line="408" selection-start-column="23" selection-end-line="408" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/proto/user.proto">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="38" lean-forward="true" selection-start-line="12" selection-start-column="38" selection-end-line="12" selection-end-column="38" />
         </state>
       </provider>
     </entry>
